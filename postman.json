@@ -1,0 +1,604 @@
+{
+	"info": {
+		"_postman_id": "local-test-12345",
+		"name": "Ticket Booking API - Local Test",
+		"description": "Complete test collection for local ticket booking system",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/health",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "5000",
+					"path": ["health"]
+				},
+				"description": "Test if server is running"
+			},
+			"response": []
+		},
+		{
+			"name": "EVENTS",
+			"item": [
+				{
+					"name": "Create Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful creation",
+									"pm.test(\"Event created successfully\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"// Save event ID",
+									"pm.test(\"Save Event ID\", function () {",
+									"    const response = pm.response.json();",
+									"    if (response.success && response.data._id) {",
+									"        pm.globals.set(\"eventId\", response.data._id);",
+									"        console.log(\"Event ID saved:\", response.data._id);",
+									"    }",
+									"});",
+									"",
+									"// Verify response structure",
+									"pm.test(\"Response has correct structure\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('success', true);",
+									"    pm.expect(response.data).to.have.property('name');",
+									"    pm.expect(response.data).to.have.property('totalTickets');",
+									"    pm.expect(response.data).to.have.property('bookedTickets', 0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Coldplay Live Concert\",\n  \"totalTickets\": 10,\n  \"price\": 150.50,\n  \"eventDate\": \"2025-12-31T20:00:00Z\",\n  \"venue\": \"Madison Square Garden\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/events",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "events"]
+						},
+						"description": "Create a new event with 10 tickets"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Event Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Event retrieved successfully\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Event has correct ticket info\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data).to.have.property('totalTickets');",
+									"    pm.expect(response.data).to.have.property('bookedTickets');",
+									"    pm.expect(response.data).to.have.property('availableTickets');",
+									"    ",
+									"    // Log current ticket status",
+									"    console.log(\"Ticket Status:\");",
+									"    console.log(\"   Total:\", response.data.totalTickets);",
+									"    console.log(\"   Booked:\", response.data.bookedTickets);",
+									"    console.log(\"   Available:\", response.data.availableTickets);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/events/{{eventId}}",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "events", "{{eventId}}"]
+						},
+						"description": "Get event details and ticket availability"
+					},
+					"response": []
+				}
+			],
+			"description": "Event management endpoints"
+		},
+		{
+			"name": "BOOKINGS",
+			"item": [
+				{
+					"name": "Book Tickets (User 1)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Booking successful\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Booking has correct details\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data).to.have.property('bookingReference');",
+									"    pm.expect(response.data).to.have.property('quantity', 2);",
+									"    pm.expect(response.data).to.have.property('totalAmount', 301);",
+									"    pm.expect(response.data).to.have.property('status', 'confirmed');",
+									"    ",
+									"    console.log(\"Booking Details:\");",
+									"    console.log(\"   Reference:\", response.data.bookingReference);",
+									"    console.log(\"   Quantity:\", response.data.quantity);",
+									"    console.log(\"   Amount:\", response.data.totalAmount);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"eventId\": \"{{eventId}}\",\n  \"userId\": \"user1\",\n  \"userEmail\": \"john.doe@example.com\",\n  \"quantity\": 2\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/book",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "book"]
+						},
+						"description": "Book 2 tickets for User 1"
+					},
+					"response": []
+				},
+				{
+					"name": "Book Tickets (User 2)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Second booking successful\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"console.log(\"User 2 booking completed\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"eventId\": \"{{eventId}}\",\n  \"userId\": \"user2\",\n  \"userEmail\": \"jane.smith@example.com\",\n  \"quantity\": 3\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/book",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "book"]
+						},
+						"description": "Book 3 tickets for User 2"
+					},
+					"response": []
+				},
+				{
+					"name": "View All Bookings",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Bookings retrieved successfully\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Bookings list contains data\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data).to.be.an('array');",
+									"    pm.expect(response.data.length).to.be.greaterThan(0);",
+									"    ",
+									"    console.log(\"📋 Total Bookings:\", response.data.length);",
+									"    response.data.forEach((booking, index) => {",
+									"        console.log(`   ${index + 1}. ${booking.userEmail} - ${booking.quantity} tickets`);",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/bookings",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "bookings"]
+						},
+						"description": "View all bookings"
+					},
+					"response": []
+				}
+			],
+			"description": "Booking functionality"
+		},
+		{
+			"name": "ERROR TESTS",
+			"item": [
+				{
+					"name": "Duplicate Booking (Should Fail)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Duplicate booking prevented\", function () {",
+									"    pm.response.to.have.status(409);",
+									"});",
+									"",
+									"pm.test(\"Error message is correct\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.false;",
+									"    pm.expect(response.message).to.include('already booked');",
+									"    console.log(\"Duplicate booking correctly prevented\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"eventId\": \"{{eventId}}\",\n  \"userId\": \"user1\",\n  \"userEmail\": \"john.doe@example.com\",\n  \"quantity\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/book",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "book"]
+						},
+						"description": "Try to book again with same user - should fail"
+					},
+					"response": []
+				},
+				{
+					"name": "Overbooking Test (Should Fail)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Overbooking prevented\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Insufficient tickets error\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.false;",
+									"    pm.expect(response.message).to.include('tickets available');",
+									"    console.log(\"Overbooking correctly prevented\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"eventId\": \"{{eventId}}\",\n  \"userId\": \"user3\",\n  \"userEmail\": \"user3@example.com\",\n  \"quantity\": 10\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/book",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "book"]
+						},
+						"description": "Try to book more tickets than available"
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Event ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid ID rejected\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"console.log(\"Invalid event ID correctly rejected\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"eventId\": \"invalid-id-123\",\n  \"userId\": \"user4\",\n  \"userEmail\": \"user4@example.com\",\n  \"quantity\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/book",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "book"]
+						},
+						"description": "Test invalid event ID format"
+					},
+					"response": []
+				}
+			],
+			"description": "Error handling and validation tests"
+		},
+		{
+			"name": "CONCURRENCY TEST",
+			"item": [
+				{
+					"name": "Create Small Event for Concurrency",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Small event created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"// Save small event ID",
+									"const response = pm.response.json();",
+									"if (response.success && response.data._id) {",
+									"    pm.globals.set(\"smallEventId\", response.data._id);",
+									"    console.log(\"Small Event ID saved:\", response.data._id);",
+									"    console.log(\"Total tickets:\", response.data.totalTickets);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Small Concurrency Test Event\",\n  \"totalTickets\": 3,\n  \"price\": 25.00,\n  \"eventDate\": \"2025-11-15T19:00:00Z\",\n  \"venue\": \"Test Venue\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/book",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "events"]
+						},
+						"description": "Create event with only 3 tickets for concurrency testing"
+					},
+					"response": []
+				},
+				{
+					"name": "Concurrent Booking 1",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"eventId\": \"{{smallEventId}}\",\n  \"userId\": \"concurrent1\",\n  \"userEmail\": \"concurrent1@example.com\",\n  \"quantity\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/book",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "book"]
+						},
+						"description": "For concurrency testing - run multiple simultaneously"
+					},
+					"response": []
+				},
+				{
+					"name": "Concurrent Booking 2",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"eventId\": \"{{smallEventId}}\",\n  \"userId\": \"concurrent2\",\n  \"userEmail\": \"concurrent2@example.com\",\n  \"quantity\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/book",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "book"]
+						},
+						"description": "For concurrency testing - run multiple simultaneously"
+					},
+					"response": []
+				},
+				{
+					"name": "Concurrent Booking 3",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"eventId\": \"{{smallEventId}}\",\n  \"userId\": \"concurrent3\",\n  \"userEmail\": \"concurrent3@example.com\",\n  \"quantity\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/book",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "book"]
+						},
+						"description": "For concurrency testing - run multiple simultaneously"
+					},
+					"response": []
+				},
+				{
+					"name": "Concurrent Booking 4 (Should Fail)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"4th booking should fail\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"console.log(\"Concurrency protection working - 4th booking correctly failed\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"eventId\": \"{{smallEventId}}\",\n  \"userId\": \"concurrent4\",\n  \"userEmail\": \"concurrent4@example.com\",\n  \"quantity\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/book",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5000",
+							"path": ["api", "book"]
+						},
+						"description": "This should fail - only 3 tickets available"
+					},
+					"response": []
+				}
+			],
+			"description": "Test concurrency protection"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-set variables if not present",
+					"if (!pm.globals.get('eventId')) {",
+					"    console.log(' No eventId found. Run \"Create Event\" first.');",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global response time test",
+					"pm.test('Response time < 2000ms', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		}
+	]
+}
