@@ -1,8 +1,8 @@
-# 🎫 Ticket Booking API
+# Ticket Booking API
 
 A simple Node.js API for booking event tickets with concurrency protection to prevent overbooking.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Setup
 ```bash
@@ -28,9 +28,9 @@ REDIS_URL=redis://localhost:6379
 LOG_LEVEL=info
 ```
 
-## 📋 API Endpoints
+## API Endpoints
 
-### 🏥 Health Check
+### Health Check
 ```http
 GET /health
 ```
@@ -46,7 +46,7 @@ GET /health
 
 ---
 
-### 🎪 1. Create Event
+### 1. Create Event
 ```http
 POST /api/events
 Content-Type: application/json
@@ -84,7 +84,7 @@ Content-Type: application/json
 
 ---
 
-### 📊 2. Get Event Details
+### 2. Get Event Details
 ```http
 GET /api/events/{eventId}
 ```
@@ -115,7 +115,7 @@ GET /api/events/6507f1f77bcf86cd799439011
 
 ---
 
-### 🎫 3. Book Tickets
+### 3. Book Tickets
 ```http
 POST /api/book
 Content-Type: application/json
@@ -158,7 +158,7 @@ Content-Type: application/json
 
 ---
 
-### 📋 4. View All Bookings
+###  4. View All Bookings
 ```http
 GET /api/bookings
 ```
@@ -204,7 +204,7 @@ GET /api/bookings?eventId=6507f1f77bcf86cd799439011&page=1&limit=5
 }
 ```
 
-## 🧪 Quick Test Commands
+##Quick Test Commands
 
 ### 1. Test with cURL
 
@@ -243,7 +243,7 @@ curl http://localhost:3000/api/bookings
 ### 2. Test with Postman
 Import the provided `Ticket-Booking-Local-Test.postman_collection.json` file into Postman for comprehensive testing.
 
-## ❌ Error Responses
+##  Error Responses
 
 ### Validation Errors (400)
 ```json
@@ -291,7 +291,7 @@ Import the provided `Ticket-Booking-Local-Test.postman_collection.json` file int
 }
 ```
 
-## 🔒 Concurrency Protection
+## Concurrency Protection
 
 The system prevents overbooking using:
 - **Distributed Locking** (Redis-based)
@@ -314,7 +314,7 @@ curl -X POST http://localhost:3000/api/book \
   -d '{"eventId":"EVENT_ID","userId":"user2","userEmail":"user2@test.com","quantity":1}' &
 ```
 
-## 📝 Request/Response Rules
+## Request/Response Rules
 
 ### Required Fields
 
@@ -332,21 +332,21 @@ curl -X POST http://localhost:3000/api/book \
 - `quantity` (number, 1-10)
 
 ### Business Rules
-- ✅ User can only book **once per event**
-- ✅ Cannot book more tickets than available
-- ✅ Cannot book for **past events**
-- ✅ Cannot book for **cancelled events**
-- ✅ **Rate limiting**: 5 booking attempts per minute
-- ✅ **Booking reference** auto-generated (format: `BK-XXXXX-XXXXX`)
+- User can only book **once per event**
+- Cannot book more tickets than available
+- Cannot book for **past events**
+- Cannot book for **cancelled events**
+- **Rate limiting**: 5 booking attempts per minute
+- **Booking reference** auto-generated (format: `BK-XXXXX-XXXXX`)
 
-## 🛠️ Tech Stack
+## Tech Stack
 - **Backend:** Node.js + Express.js
 - **Database:** MongoDB (with Mongoose)
 - **Caching:** Redis (optional)
 - **Validation:** Joi
 - **Logging:** Winston
 
-## 📁 Project Structure
+## Project Structure
 ```
 ticket-booking-system/
 ├── server.js              # Entry point
